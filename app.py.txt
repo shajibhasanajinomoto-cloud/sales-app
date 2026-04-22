@@ -1,0 +1,54 @@
+import streamlit as st
+import datetime
+
+products = {
+    "apple": {"price": 100, "stock": 50},
+    "banana": {"price": 50, "stock": 100},
+    "milk": {"price": 80, "stock": 30}
+}
+
+sales_history = []
+
+st.title("🛒 Sales Management System")
+
+menu = st.sidebar.selectbox("Menu", ["Product", "Sales", "Invoice", "Dashboard"])
+
+if menu == "Product":
+    st.header("📦 Product List")
+    for p in products:
+        st.write(f"{p} → Price: {products[p]['price']} | Stock: {products[p]['stock']}")
+
+elif menu == "Sales":
+    st.header("💰 Make Sale")
+    product = st.selectbox("Select Product", list(products.keys()))
+    qty = st.number_input("Quantity", min_value=1)
+
+    if st.button("Sell"):
+        if products[product]["stock"] >= qty:
+            total = products[product]["price"] * qty
+            products[product]["stock"] -= qty
+
+            sale = {
+                "product": product,
+                "qty": qty,
+                "total": total,
+                "time": str(datetime.datetime.now())
+            }
+
+            sales_history.append(sale)
+            st.success(f"Sold! Total = {total}")
+        else:
+            st.error("❌ Not enough stock!")
+
+elif menu == "Invoice":
+    st.header("🧾 Invoice")
+    if len(sales_history) == 0:
+        st.write("No sales yet")
+    else:
+        last_sale = sales_history[-1]
+        st.write(last_sale)
+
+elif menu == "Dashboard":
+    st.header("📊 Dashboard")
+    total_sales = sum([s["total"] for s in sales_history])
+    st.write("💵 Total Sales:", total_sales)
